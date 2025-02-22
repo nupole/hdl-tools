@@ -1,6 +1,6 @@
 FROM fedora:latest
 
-RUN dnf install -y gcc g++ ninja-build cmake ghdl python python-pip
+RUN dnf install -y gcc g++ ninja-build cmake ghdl verilator python python-pip
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt
