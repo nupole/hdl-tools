@@ -1,0 +1,45 @@
+name: Build and Push Docker Image
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  push:
+    branches:
+      - development
+env:
+  REGISTRY: ghcr.io
+jobs:
+  build-and-push-docker-image:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+      - name: Login to GHCR
+        uses: docker/login-action@v3.6.0
+        with:
+          registry: ${{env.REGISTRY}}
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+      - name: Extract Metadata
+        id: metadata
+        uses: docker/metadata-action@v5.9.0
+        with:
+          images: ${{env.REGISTRY}}/${{github.repository}}
+      - name: Build and Push Docker Image
+        id: push
+        uses: docker/build-push-action@v6.18.0
+        with:
+          push: true
+          tags: ${{steps.metadata.outputs.tags}}
+          labels: ${{steps.metadata.outputs.label}}
+      - name: Generate Artifact Attestations
+        uses: actions/attest-build-provenance@v3.0.0
+        with:
+          subject-name: ${{env.REGISTRY}}/${{github.repository}}
+          subject-digest: ${{steps.push.outputs.digest}}
+          push-to-registry: true
