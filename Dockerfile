@@ -1,4 +1,4 @@
-FROM fedora:latest
+FROM fedora:43
 
 RUN dnf upgrade -y
 RUN dnf install -y git gcc g++ ninja-build cmake ghdl python3.13
